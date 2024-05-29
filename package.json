@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/node": "^20.12.12",
     "@types/puppeteer": "^7.0.4",
+    "dotenv": "^16.4.5",
     "puppeteer": "^22.9.0",
     "typescript": "^5.4.5"
   }
