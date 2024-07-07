@@ -1,4 +1,4 @@
-function parseLocation(location: { [key: string]: any }): Aeroplan.Location {
+export function parseLocation(location: { [key: string]: any }): Aeroplan.Location {
   const parsedLocation: Aeroplan.Location = {
     type: location.type,
     airport_name: location.airportName,

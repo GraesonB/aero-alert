@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Surreal } from "surrealdb.js";
+import { RecordId, Surreal } from "surrealdb.js";
 dotenv.config();
 
 export class DBConnection {
@@ -13,26 +13,36 @@ export class DBConnection {
     await this.db.connect(process.env.DB_URL, {
       namespace: "aeroplan",
       database: "aeroplan",
-
-      auth: {
-        namespace: "aeroplan",
-        database: "aeroplan",
-        username: process.env.DB_USER,
-        password: process.env.DB_PASS,
-      },
     });
+
+    await this.db.signin({
+      username: process.env.DB_USER,
+      password: process.env.DB_PASS,
+    });
+  }
+
+  async close() {
+    await this.db.close();
   }
 
   async createDocument<T extends Aeroplan.DocumentType>(
     type: T,
-    id: Aeroplan.DocumentMapping[T]["id"],
     document: Aeroplan.DocumentMapping[T]["document"]
-  ) {
-    try {
-      const created = await this.db.create(type, { id, ...document });
-      console.log(created);
-    } catch (e) {
-      console.error(e);
-    }
+  ): Promise<{ [x: string]: unknown; id: RecordId<string> }[]>;
+  async createDocument<T extends Aeroplan.DocumentType>(
+    type: T,
+    document: Aeroplan.DocumentMapping[T]["document"],
+    id: Aeroplan.DocumentMapping[T]["id"]
+  ): Promise<{ [x: string]: unknown; id: RecordId<string> }[]>;
+
+  async createDocument<T extends Aeroplan.DocumentType>(
+    type: T,
+    document: Aeroplan.DocumentMapping[T]["document"],
+    id?: Aeroplan.DocumentMapping[T]["id"]
+  ): Promise<{ [x: string]: unknown; id: RecordId<string> }[]> {
+    if (id) document = { id, ...document };
+
+    const created = await this.db.create(type, document);
+    return created;
   }
 }
